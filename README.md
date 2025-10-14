@@ -43,6 +43,12 @@ This project implements a microservices architecture with the following componen
    - Service status dashboard
    - Modern user interface
 
+8. **Customer Frontend** (Port 3007)
+   - Customer-facing portal
+   - Payment initiation interface
+   - Transaction history view
+   - Account management from customer perspective
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -66,6 +72,7 @@ docker-compose up --build
 
 3. Access the application:
    - Frontend Dashboard: http://localhost:3006
+   - Customer Frontend: http://localhost:3007
    - API Gateway: http://localhost:3000
    - Individual services: Ports 3001-3005
 
@@ -130,7 +137,12 @@ EDA_Project/
 │   ├── Dockerfile
 │   ├── package.json
 │   └── README.md
-├── frontend/                       # Next.js frontend application
+├── frontend/                       # Next.js frontend application (Dashboard)
+│   ├── app/
+│   ├── Dockerfile
+│   ├── package.json
+│   └── next.config.ts
+├── customer_frontend/              # Next.js customer portal
 │   ├── app/
 │   ├── Dockerfile
 │   ├── package.json
@@ -218,3 +230,4 @@ Banking System Modernization Team
 - [Partner Integration Documentation](./partner-integration-service/README.md)
 - [Regulatory Reporting Documentation](./regulatory-reporting-service/README.md)
 - [Core Banking Adapter Documentation](./core-banking-adapter/README.md)
+- [Customer Frontend Documentation](./customer_frontend/README.md)

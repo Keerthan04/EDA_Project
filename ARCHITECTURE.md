@@ -165,7 +165,7 @@ Transaction {
 ```
 
 #### 6. Frontend UI (Port 3006)
-**Responsibility:** User interface and experience
+**Responsibility:** User interface and experience - Dashboard
 
 **Technology:** Next.js 15 with React 19 and TypeScript
 
@@ -174,6 +174,25 @@ Transaction {
 - Real-time service health monitoring
 - Responsive design
 - Modern UI components
+
+#### 7. Customer Frontend (Port 3007)
+**Responsibility:** Customer-facing portal and user experience
+
+**Technology:** Next.js 15 with React 19 and TypeScript
+
+**Key Features:**
+- Customer profile viewing
+- Account balance and status display
+- Payment initiation (UPI, NEFT, RTGS, IMPS)
+- Transaction history viewing
+- Microservices integration from customer perspective
+- Interactive payment processing forms
+- Real-time transaction status updates
+
+**User Flows:**
+1. **Customer Selection**: Select customer from list → View account details
+2. **Payment Initiation**: Fill payment form → Process through microservices → Get confirmation
+3. **Transaction History**: View all transactions → Filter by type → See detailed information
 
 ## Communication Patterns
 

@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Frontend Service
+  # Frontend Service (Dashboard)
   frontend:
     build:
       context: ./frontend
@@ -9,6 +9,21 @@ services:
     container_name: banking-frontend
     ports:
       - "3006:3006"
+    environment:
+      - NEXT_PUBLIC_API_GATEWAY_URL=http://api-gateway:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - banking-network
+
+  # Customer Frontend Service
+  customer-frontend:
+    build:
+      context: ./customer_frontend
+      dockerfile: Dockerfile
+    container_name: banking-customer-frontend
+    ports:
+      - "3007:3007"
     environment:
       - NEXT_PUBLIC_API_GATEWAY_URL=http://api-gateway:3000
     depends_on:
