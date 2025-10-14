@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: banking-frontend
+    ports:
+      - "3006:3006"
+    environment:
+      - NEXT_PUBLIC_API_GATEWAY_URL=http://api-gateway:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - banking-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: banking-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - CUSTOMER_SERVICE_URL=http://customer-service:3001
+      - PAYMENTS_SERVICE_URL=http://payments-service:3002
+      - PARTNER_SERVICE_URL=http://partner-integration-service:3003
+      - REGULATORY_SERVICE_URL=http://regulatory-reporting-service:3004
+      - CORE_BANKING_SERVICE_URL=http://core-banking-adapter:3005
+    depends_on:
+      - customer-service
+      - payments-service
+      - partner-integration-service
+      - regulatory-reporting-service
+      - core-banking-adapter
+    networks:
+      - banking-network
+
+  # Customer Service
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    container_name: banking-customer-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - DATABASE_URL=mongodb://mongodb:27017/customer-service
+    networks:
+      - banking-network
+
+  # Payments Service
+  payments-service:
+    build:
+      context: ./payments-service
+      dockerfile: Dockerfile
+    container_name: banking-payments-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - DATABASE_URL=mongodb://mongodb:27017/payments-service
+    networks:
+      - banking-network
+
+  # Partner Integration Service
+  partner-integration-service:
+    build:
+      context: ./partner-integration-service
+      dockerfile: Dockerfile
+    container_name: banking-partner-integration-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - DATABASE_URL=mongodb://mongodb:27017/partner-integration-service
+    networks:
+      - banking-network
+
+  # Regulatory Reporting Service
+  regulatory-reporting-service:
+    build:
+      context: ./regulatory-reporting-service
+      dockerfile: Dockerfile
+    container_name: banking-regulatory-reporting-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - DATABASE_URL=mongodb://mongodb:27017/regulatory-reporting-service
+    networks:
+      - banking-network
+
+  # Core Banking Adapter
+  core-banking-adapter:
+    build:
+      context: ./core-banking-adapter
+      dockerfile: Dockerfile
+    container_name: banking-core-banking-adapter
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - DATABASE_URL=mongodb://mongodb:27017/core-banking-adapter
+    networks:
+      - banking-network
+
+networks:
+  banking-network:
+    driver: bridge
