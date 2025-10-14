@@ -1,19 +1,35 @@
 {
   "name": "payments-service",
   "version": "1.0.0",
+  "type": "module",
   "description": "Payments Processing Service for Banking System",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.ts",
+    "devts": "tsx --watch src/index.ts",
+    "startts": "node dist/index.js",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "mongoose": "^8.0.0"
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.7.2",
+    "@types/uuid": "^10.0.0",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.9.3"
   }
 }
