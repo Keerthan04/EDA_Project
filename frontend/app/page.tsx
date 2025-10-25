@@ -8,8 +8,19 @@ interface Service {
   status: string;
 }
 
+interface Report {
+  id: number;
+  reportId: string;
+  type: string;
+  title: string;
+  status: string;
+  period: string;
+  submittedDate: string | null;
+}
+
 export default function Home() {
   const [services, setServices] = useState<Service[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     const checkServices = async () => {
@@ -45,6 +56,24 @@ export default function Home() {
     };
 
     checkServices();
+  }, []);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      const apiGateway = process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:3000';
+      
+      try {
+        const response = await fetch(`${apiGateway}/api/regulatory/reports`);
+        const data = await response.json();
+        if (data.success && data.data) {
+          setReports(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+      }
+    };
+
+    fetchReports();
   }, []);
 
   return (
@@ -113,6 +142,75 @@ export default function Home() {
               </ul>
             </div>
           </div>
+        </div>
+
+        <div className="mt-12 bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            Regulatory Reports Status
+          </h2>
+          {reports.length === 0 ? (
+            <p className="text-gray-600">Loading reports...</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Report ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Report Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Period
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Submitted Date
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {reports.map((report) => (
+                    <tr key={report.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {report.reportId}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {report.type}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          report.status === 'submitted' 
+                            ? 'bg-green-100 text-green-800'
+                            : report.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {report.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {report.period}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {report.submittedDate 
+                          ? new Date(report.submittedDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })
+                          : 'N/A'
+                        }
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

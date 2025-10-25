@@ -33,6 +33,13 @@ let partners = [
     type: 'credit-bureau',
     status: 'active',
     apiEndpoint: 'https://api.creditbureau.example.com'
+  },
+  { 
+    id: 3, 
+    name: 'BrokerageLink Services', 
+    type: 'brokerage',
+    status: 'active',
+    apiEndpoint: 'https://api.brokeragelink.example.com'
   }
 ];
 
@@ -92,6 +99,40 @@ app.get('/integrations/:id/status', (req, res) => {
     return res.status(404).json({ success: false, message: 'Integration not found' });
   }
   res.json({ success: true, status: integration.status });
+});
+
+// Link brokerage account
+app.post('/integrations/link-brokerage', async (req, res) => {
+  const { customerId, brokerageAccountId } = req.body;
+  
+  console.log(`Brokerage linking request received for customer ${customerId}, brokerage account ${brokerageAccountId}`);
+  
+  const newIntegration = {
+    id: integrations.length + 1,
+    transactionId: `INT${String(integrations.length + 1).padStart(3, '0')}`,
+    customerId,
+    brokerageAccountId,
+    partnerId: 3, // BrokerageLink Services
+    type: 'brokerage-link',
+    status: 'pending',
+    timestamp: new Date().toISOString()
+  };
+  
+  integrations.push(newIntegration);
+  
+  // Simulate asynchronous call to partner with Promise
+  await new Promise(resolve => {
+    setTimeout(() => {
+      // Randomly determine success or failure
+      const isSuccess = Math.random() > 0.3; // 70% success rate
+      newIntegration.status = isSuccess ? 'linked' : 'failed';
+      console.log(`Brokerage linking ${isSuccess ? 'succeeded' : 'failed'} for integration ${newIntegration.transactionId}`);
+      resolve();
+    }, 2000);
+  });
+  
+  // Return response with final status
+  res.status(201).json({ success: true, data: newIntegration });
 });
 
 app.listen(PORT, () => {
