@@ -69,7 +69,19 @@ app.use(
 app.use('/api/partners', createProxyMiddleware({
   target: services.partner,
   changeOrigin: true,
-  pathRewrite: { '^/api/partners': '' }
+  pathRewrite: { '^/api/partners': '' },
+  
+  onProxyReq: (proxyReq, req, res) => {
+    if (req.body) {
+      const bodyData = JSON.stringify(req.body);
+      // Set the content-type header to application/json
+      proxyReq.setHeader('Content-Type', 'application/json');
+      // Set the content-length header to the new body size
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+      // Write the new body to the proxy request
+      proxyReq.write(bodyData);
+    }
+  }
 }));
 
 app.use('/api/regulatory', createProxyMiddleware({

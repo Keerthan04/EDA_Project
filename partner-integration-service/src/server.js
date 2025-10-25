@@ -102,7 +102,7 @@ app.get('/integrations/:id/status', (req, res) => {
 });
 
 // Link brokerage account
-app.post('/integrations/link-brokerage', (req, res) => {
+app.post('/integrations/link-brokerage', async (req, res) => {
   const { customerId, brokerageAccountId } = req.body;
   
   console.log(`Brokerage linking request received for customer ${customerId}, brokerage account ${brokerageAccountId}`);
@@ -118,20 +118,21 @@ app.post('/integrations/link-brokerage', (req, res) => {
     timestamp: new Date().toISOString()
   };
   
-  // Simulate asynchronous call to partner
-  setTimeout(() => {
-    // Randomly determine success or failure
-    const isSuccess = Math.random() > 0.3; // 70% success rate
-    newIntegration.status = isSuccess ? 'linked' : 'failed';
-    console.log(`Brokerage linking ${isSuccess ? 'succeeded' : 'failed'} for integration ${newIntegration.transactionId}`);
-  }, 2000);
-  
   integrations.push(newIntegration);
   
-  // Wait for the timeout to complete before responding
-  setTimeout(() => {
-    res.status(201).json({ success: true, data: newIntegration });
-  }, 2100);
+  // Simulate asynchronous call to partner with Promise
+  await new Promise(resolve => {
+    setTimeout(() => {
+      // Randomly determine success or failure
+      const isSuccess = Math.random() > 0.3; // 70% success rate
+      newIntegration.status = isSuccess ? 'linked' : 'failed';
+      console.log(`Brokerage linking ${isSuccess ? 'succeeded' : 'failed'} for integration ${newIntegration.transactionId}`);
+      resolve();
+    }, 2000);
+  });
+  
+  // Return response with final status
+  res.status(201).json({ success: true, data: newIntegration });
 });
 
 app.listen(PORT, () => {
