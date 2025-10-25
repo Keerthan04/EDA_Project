@@ -84,7 +84,7 @@ import express, { Express } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import routes from './routes/index'; // Import the centralized routes
+import routes from './routes/index.js'; // Import the centralized routes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -96,6 +96,7 @@ const DATABASE_URL = process.env.DATABASE_URL || 'mongodb://localhost:27017/paym
 // --- Middleware ---
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // Parse JSON request bodies
+app.use(express.urlencoded({ extended: true })); // Parses URL-encoded bodies
 
 // --- API Routes ---
 app.use('/', routes); // Use the routes defined in src/routes/index.ts

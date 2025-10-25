@@ -3,7 +3,7 @@ import { Router } from "express";
 import {
   processNewPayment,
   getPaymentStatus,
-} from "../controllers/payment.controller";
+} from "../controllers/payment.controller.js";
 
 const router = Router();
 

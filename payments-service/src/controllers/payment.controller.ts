@@ -1,13 +1,14 @@
 // src/controllers/payment.controller.ts
 import { Request, Response } from "express";
-import { PaymentOrchestratorService } from "../services/payment.orchestrator";
-import { Transaction } from "../models/transaction.model";
+import { PaymentOrchestratorService } from "../services/payment.orchestrator.js";
+import { Transaction } from "../models/transaction.model.js";
 
 const orchestrator = new PaymentOrchestratorService();
 
 export const processNewPayment = async (req: Request, res: Response) => {
   try {
     const paymentDetails = req.body;
+    console.log("Received payment details:", paymentDetails);
     if (
       !paymentDetails.amount ||
       !paymentDetails.payer ||

@@ -16,12 +16,26 @@ app.get('/health', (req, res) => {
 });
 
 // Proxy configurations for microservices
+// const services = {
+//   customer: process.env.CUSTOMER_SERVICE_URL || 'http://customer-service:3001',
+//   payments: process.env.PAYMENTS_SERVICE_URL || 'http://payments-service:3002',
+//   partner: process.env.PARTNER_SERVICE_URL || 'http://partner-integration-service:3003',
+//   regulatory: process.env.REGULATORY_SERVICE_URL || 'http://regulatory-reporting-service:3004',
+//   corebanking: process.env.CORE_BANKING_SERVICE_URL || 'http://core-banking-adapter:3005'
+// };
+
+//for now localhost testing
 const services = {
-  customer: process.env.CUSTOMER_SERVICE_URL || 'http://customer-service:3001',
-  payments: process.env.PAYMENTS_SERVICE_URL || 'http://payments-service:3002',
-  partner: process.env.PARTNER_SERVICE_URL || 'http://partner-integration-service:3003',
-  regulatory: process.env.REGULATORY_SERVICE_URL || 'http://regulatory-reporting-service:3004',
-  corebanking: process.env.CORE_BANKING_SERVICE_URL || 'http://core-banking-adapter:3005'
+  customer: process.env.CUSTOMER_SERVICE_URL || "http://localhost:3001",
+  payments: process.env.PAYMENTS_SERVICE_URL || "http://localhost:3002",
+  partner:
+    process.env.PARTNER_SERVICE_URL ||
+    "http://localhost:3003",
+  regulatory:
+    process.env.REGULATORY_SERVICE_URL ||
+    "http://localhost:3004",
+  corebanking:
+    process.env.CORE_BANKING_SERVICE_URL || "http://localhost:3005",
 };
 
 // Setup proxies for each service
@@ -31,11 +45,26 @@ app.use('/api/customers', createProxyMiddleware({
   pathRewrite: { '^/api/customers': '' }
 }));
 
-app.use('/api/payments', createProxyMiddleware({
-  target: services.payments,
-  changeOrigin: true,
-  pathRewrite: { '^/api/payments': '' }
-}));
+app.use(
+  "/api/payments",
+  createProxyMiddleware({
+    target: services.payments,
+    changeOrigin: true,
+    pathRewrite: { "^/api/payments": "" },
+
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.body) {
+        const bodyData = JSON.stringify(req.body);
+        // Set the content-type header to application/json
+        proxyReq.setHeader("Content-Type", "application/json");
+        // Set the content-length header to the new body size
+        proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+        // Write the new body to the proxy request
+        proxyReq.write(bodyData);
+      }
+    },
+  })
+);
 
 app.use('/api/partners', createProxyMiddleware({
   target: services.partner,

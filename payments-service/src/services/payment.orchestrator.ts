@@ -1,7 +1,7 @@
 // src/services/payment.orchestrator.ts
-import { Transaction, ITransaction } from "../models/transaction.model";
-import { CBSAdapterClient } from "./cbs.adapter.client";
-import { NPCIClient } from "./npci.client"; // Mock NPCI client
+import { Transaction, ITransaction } from "../models/transaction.model.js";
+import { CBSAdapterClient } from "./cbs.adapter.client.js";
+import { NPCIClient } from "./npci.client.js"; // Mock NPCI client
 import { v4 as uuidv4 } from "uuid";
 
 export class PaymentOrchestratorService {
@@ -61,10 +61,10 @@ export class PaymentOrchestratorService {
       await this.logStep(transaction, "PaymentCompleted", "SUCCESS");
     } catch (error: any) {
       transaction.status = "FAILED";
-      const failedStep =
+      const failedAtStep =
         transaction.orchestrationLog[transaction.orchestrationLog.length - 1]
           ?.step || "Unknown";
-      transaction.failureDetails = { reason: error.message, failedStep };
+      transaction.failureDetails = { reason: error.message, failedAtStep };
       await this.logStep(
         transaction,
         "PaymentFailed",
