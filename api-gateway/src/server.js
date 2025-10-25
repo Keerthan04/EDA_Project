@@ -10,6 +10,26 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Helper function to handle POST request body forwarding in proxy
+const createBodyForwardingProxy = (target, pathRewrite) => {
+  return createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite,
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.body) {
+        const bodyData = JSON.stringify(req.body);
+        // Set the content-type header to application/json
+        proxyReq.setHeader('Content-Type', 'application/json');
+        // Set the content-length header to the new body size
+        proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+        // Write the new body to the proxy request
+        proxyReq.write(bodyData);
+      }
+    }
+  });
+};
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'API Gateway is running', timestamp: new Date().toISOString() });
@@ -45,44 +65,15 @@ app.use('/api/customers', createProxyMiddleware({
   pathRewrite: { '^/api/customers': '' }
 }));
 
-app.use(
-  "/api/payments",
-  createProxyMiddleware({
-    target: services.payments,
-    changeOrigin: true,
-    pathRewrite: { "^/api/payments": "" },
+app.use('/api/payments', createBodyForwardingProxy(
+  services.payments,
+  { '^/api/payments': '' }
+));
 
-    onProxyReq: (proxyReq, req, res) => {
-      if (req.body) {
-        const bodyData = JSON.stringify(req.body);
-        // Set the content-type header to application/json
-        proxyReq.setHeader("Content-Type", "application/json");
-        // Set the content-length header to the new body size
-        proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
-        // Write the new body to the proxy request
-        proxyReq.write(bodyData);
-      }
-    },
-  })
-);
-
-app.use('/api/partners', createProxyMiddleware({
-  target: services.partner,
-  changeOrigin: true,
-  pathRewrite: { '^/api/partners': '' },
-  
-  onProxyReq: (proxyReq, req, res) => {
-    if (req.body) {
-      const bodyData = JSON.stringify(req.body);
-      // Set the content-type header to application/json
-      proxyReq.setHeader('Content-Type', 'application/json');
-      // Set the content-length header to the new body size
-      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-      // Write the new body to the proxy request
-      proxyReq.write(bodyData);
-    }
-  }
-}));
+app.use('/api/partners', createBodyForwardingProxy(
+  services.partner,
+  { '^/api/partners': '' }
+));
 
 app.use('/api/regulatory', createProxyMiddleware({
   target: services.regulatory,
