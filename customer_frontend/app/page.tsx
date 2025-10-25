@@ -26,6 +26,8 @@ export default function Home() {
   const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkingBrokerage, setLinkingBrokerage] = useState(false);
+  const [brokerageMessage, setBrokerageMessage] = useState<string | null>(null);
 
   const apiGateway = process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:3000';
 
@@ -73,7 +75,45 @@ export default function Home() {
     setSelectedCustomer(customer);
     setAccount(null);
     setError(null);
+    setBrokerageMessage(null);
     fetchAccountDetails(customer.accountNumber);
+  };
+
+  const handleLinkBrokerage = async () => {
+    if (!selectedCustomer) return;
+    
+    try {
+      setLinkingBrokerage(true);
+      setBrokerageMessage(null);
+      
+      const response = await fetch(`${apiGateway}/api/partners/integrations/link-brokerage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerId: selectedCustomer.id,
+          brokerageAccountId: 'MOCK_BROKERAGE_123'
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.status === 201 && data.success) {
+        if (data.data.status === 'linked') {
+          setBrokerageMessage(`✓ Brokerage account linked successfully! Integration ID: ${data.data.transactionId}`);
+        } else {
+          setBrokerageMessage(`✗ Failed to link brokerage account. Status: ${data.data.status}`);
+        }
+      } else {
+        setBrokerageMessage('✗ Failed to link brokerage account. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error linking brokerage:', err);
+      setBrokerageMessage('✗ An error occurred while linking brokerage account.');
+    } finally {
+      setLinkingBrokerage(false);
+    }
   };
 
   return (
@@ -256,6 +296,40 @@ export default function Home() {
                       </div>
                     </div>
                   </Link>
+                </div>
+
+                {/* Link External Accounts */}
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">Link External Accounts</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Connect your external accounts to access integrated services
+                  </p>
+                  <button
+                    onClick={handleLinkBrokerage}
+                    disabled={linkingBrokerage}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {linkingBrokerage ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Linking...
+                      </>
+                    ) : (
+                      'Link Brokerage Account'
+                    )}
+                  </button>
+                  {brokerageMessage && (
+                    <div className={`mt-4 p-4 rounded-lg ${
+                      brokerageMessage.includes('✓') 
+                        ? 'bg-green-50 border border-green-200 text-green-800' 
+                        : 'bg-red-50 border border-red-200 text-red-800'
+                    }`}>
+                      <p className="text-sm font-medium">{brokerageMessage}</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Services Info */}
