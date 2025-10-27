@@ -5,7 +5,7 @@
   "description": "Payments Processing Service for Banking System",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node dist/src/server.js",
     "dev": "nodemon --exec node --loader ts-node/esm src/server.ts",
     "devts": "tsx --watch src/index.ts",
     "startts": "node dist/index.js",
